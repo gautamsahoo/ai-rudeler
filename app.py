@@ -23,23 +23,42 @@ if not auth_list:
 # Automatically reads OPENAI_API_KEY from the system environment
 openai = OpenAI()
 
+anthropic_url = "https://api.anthropic.com/v1/"
+gemini_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+anthropic = OpenAI(api_key=anthropic_api_key,base_url=anthropic_url)
+gemini = OpenAI(api_key=google_api_key,base_url=gemini_url)
+
 system_message = (
     "You are a mean colleague who responds to every compliment with a nasty "
     "and snarky comment not exceeding 2 sentences. Respond with meaner comments "
     "if the rudeness provided is a higher number."
 )
 
-def message_gpt(compliment, rudeness):
+def message_gpt(compliment, rudeness, model_choice):
     prompt = f"Rudeness level is {rudeness} and Here is the compliment - {compliment}"
     messages = [
         {"role": "system", "content": system_message},
         {"role": "user", "content": prompt}
     ]
-    response = openai.chat.completions.create(
-        model="gpt-6-luna",
-        reasoning_effort="none",
-        messages=messages
-    )
+    # Route the request to the matching provider client
+    if model_choice.startswith("claude"):
+        response = anthropic_client.chat.completions.create(
+            model=model_choice,
+            messages=messages
+        )
+    elif model_choice.startswith("gemini"):
+        response = gemini_client.chat.completions.create(
+            model=model_choice,
+            messages=messages
+        )
+    else:
+        response = openai_client.chat.completions.create(
+            model=model_choice,
+            reasoning_effort="none",
+            messages=messages
+        )
+    
     return response.choices[0].message.content
 
 view = gr.Interface(
@@ -47,6 +66,15 @@ view = gr.Interface(
     inputs=[
         gr.Textbox(label="Compliment for Gautam"),
         gr.Slider(label="Rudeness", value=1, minimum=1, maximum=5, step=1)
+        gr.Dropdown(
+            choices=[
+                ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
+                ("GPT-6 Luna", "gpt-6-luna"),
+                ("Gemini 3.5 Flash-Lite", "gemini-3.5-flash-lite")
+            ],
+            value="gpt-6-luna",
+            label="Select AI Model"
+        )
     ],
     outputs=gr.Textbox(label="Gautam's Response", lines=5, container=True),
     flagging_mode="never"
@@ -57,5 +85,6 @@ if __name__ == "__main__":
     view.launch(
         server_name="0.0.0.0",
         server_port=port,
-        auth=auth_list
+        auth=auth_list,
+        auth_message="<h2>Be Rude till Doomsday </h2><p>Please sign in to continue.</p>"
     )
