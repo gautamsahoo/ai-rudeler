@@ -40,7 +40,7 @@ def message_gpt(compliment, rudeness):
         reasoning_effort="none",
         messages=messages
     )
-    return response.choices.message.content
+    return response.choices[0].message.content
 
 view = gr.Interface(
     fn=message_gpt,
