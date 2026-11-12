@@ -33,12 +33,12 @@ openai_client = OpenAI(api_key=openai_api_key)
 
 anthropic_client = OpenAI(
     api_key=anthropic_api_key,
-    base_url="https://anthropic.com"
+    base_url="https://api.anthropic.com/v1/"
 )
 
 gemini_client = OpenAI(
     api_key=google_api_key,
-    base_url="https://googleapis.com"
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 )
 
 system_message = (
