@@ -2,9 +2,17 @@ import os
 from openai import OpenAI
 import gradio as gr
 
-# 1. Verify the OpenAI API key exists
-if not os.environ.get("OPENAI_API_KEY"):
+# 1. Verify all three API keys exist
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
+google_api_key = os.environ.get("GOOGLE_API_KEY")
+
+if not openai_api_key:
     raise ValueError("OPENAI_API_KEY environment variable is missing.")
+if not anthropic_api_key:
+    raise ValueError("ANTHROPIC_API_KEY environment variable is missing.")
+if not google_api_key:
+    raise ValueError("GOOGLE_API_KEY environment variable is missing.")
 
 # 2. Load and parse login credentials from APP_USERS
 raw_users = os.environ.get("APP_USERS")
@@ -20,14 +28,18 @@ for pair in raw_users.split(","):
 if not auth_list:
     raise ValueError("No valid username:password pairs found in APP_USERS.")
 
-# Automatically reads OPENAI_API_KEY from the system environment
-openai = OpenAI()
+# 3. Initialize all three OpenAI-compatible clients
+openai_client = OpenAI(api_key=openai_api_key)
 
-anthropic_url = "https://api.anthropic.com/v1/"
-gemini_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+anthropic_client = OpenAI(
+    api_key=anthropic_api_key,
+    base_url="https://anthropic.com"
+)
 
-anthropic = OpenAI(api_key=anthropic_api_key,base_url=anthropic_url)
-gemini = OpenAI(api_key=google_api_key,base_url=gemini_url)
+gemini_client = OpenAI(
+    api_key=google_api_key,
+    base_url="https://googleapis.com"
+)
 
 system_message = (
     "You are a mean colleague who responds to every compliment with a nasty "
@@ -41,6 +53,7 @@ def message_gpt(compliment, rudeness, model_choice):
         {"role": "system", "content": system_message},
         {"role": "user", "content": prompt}
     ]
+
     # Route the request to the matching provider client
     if model_choice.startswith("claude"):
         response = anthropic_client.chat.completions.create(
@@ -58,14 +71,15 @@ def message_gpt(compliment, rudeness, model_choice):
             reasoning_effort="none",
             messages=messages
         )
-    
+
     return response.choices[0].message.content
 
 view = gr.Interface(
+    title="Be Rude till Doomsday",
     fn=message_gpt,
     inputs=[
         gr.Textbox(label="Compliment for Gautam"),
-        gr.Slider(label="Rudeness", value=1, minimum=1, maximum=5, step=1)
+        gr.Slider(label="Rudeness", value=1, minimum=1, maximum=5, step=1),
         gr.Dropdown(
             choices=[
                 ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
@@ -86,5 +100,5 @@ if __name__ == "__main__":
         server_name="0.0.0.0",
         server_port=port,
         auth=auth_list,
-        auth_message="<h2>Be Rude till Doomsday </h2><p>Please sign in to continue.</p>"
+        auth_message="<h2>Be Rude till Doomsday</h2><p>Please sign in to continue.</p>"
     )
