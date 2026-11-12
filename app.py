@@ -33,12 +33,12 @@ openai_client = OpenAI(api_key=openai_api_key)
 
 anthropic_client = OpenAI(
     api_key=anthropic_api_key,
-    base_url="https://api.anthropic.com/v1/"
+    base_url="https://anthropic.com"
 )
 
 gemini_client = OpenAI(
     api_key=google_api_key,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    base_url="https://googleapis.com"
 )
 
 system_message = (
@@ -54,7 +54,6 @@ def message_gpt(compliment, rudeness, model_choice):
         {"role": "user", "content": prompt}
     ]
 
-    # Route the request to the matching provider client
     if model_choice.startswith("claude"):
         response = anthropic_client.chat.completions.create(
             model=model_choice,
@@ -74,25 +73,102 @@ def message_gpt(compliment, rudeness, model_choice):
 
     return response.choices[0].message.content
 
-view = gr.Interface(
-    title="Be Rude till Doomsday",
-    fn=message_gpt,
-    inputs=[
-        gr.Textbox(label="Compliment for Gautam"),
-        gr.Slider(label="Rudeness", value=1, minimum=1, maximum=5, step=1),
-        gr.Dropdown(
-            choices=[
-                ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
-                ("GPT-6 Luna", "gpt-6-luna"),
-                ("Gemini 3.5 Flash-Lite", "gemini-3.5-flash-lite")
-            ],
-            value="gpt-6-luna",
-            label="Select AI Model"
-        )
-    ],
-    outputs=gr.Textbox(label="Gautam's Response", lines=5, container=True),
-    flagging_mode="never"
+# 4. Define custom theme and CSS styling
+custom_theme = gr.themes.Soft(
+    primary_hue="rose",
+    secondary_hue="slate",
+    radius_size="lg"
 )
+
+custom_css = """
+.gradio-container {
+    max-width: 850px !important;
+    margin: auto !important;
+}
+#header-banner {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #881337, #be123c);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.25);
+}
+#header-banner h1 {
+    color: white !important;
+    margin: 0;
+    font-size: 2rem;
+}
+#header-banner p {
+    color: #ffe4e6 !important;
+    margin: 6px 0 0 0;
+}
+.styled-box {
+    border: 2px solid #fda4af !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+"""
+
+# 5. Build a cleaner layout using gr.Blocks
+with gr.Blocks(title="Be Rude till Doomsday") as view:
+    gr.HTML(
+        """
+        <div id="header-banner">
+            <h1>Be Rude till Doomsday</h1>
+            <p>Give Gautam a compliment and brace yourself for the response.</p>
+        </div>
+        """
+    )
+
+    with gr.Row():
+        with gr.Column(scale=1):
+            compliment_input = gr.Textbox(
+                label="Compliment for Gautam",
+                placeholder="Type something nice here...",
+                lines=3,
+                elem_classes="styled-box"
+            )
+            with gr.Row():
+                rudeness_slider = gr.Slider(
+                    label="Rudeness Level",
+                    value=1,
+                    minimum=1,
+                    maximum=5,
+                    step=1
+                )
+                model_dropdown = gr.Dropdown(
+                    choices=[
+                        ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
+                        ("GPT-6 Luna", "gpt-6-luna"),
+                        ("Gemini 3.5 Flash-Lite", "gemini-3.5-flash-lite")
+                    ],
+                    value="gpt-6-luna",
+                    label="Select AI Model"
+                )
+            with gr.Row():
+                clear_btn = gr.Button("Clear", variant="secondary")
+                submit_btn = gr.Button("Deliver Compliment", variant="primary")
+
+        with gr.Column(scale=1):
+            output_box = gr.Textbox(
+                label="Gautam's Response",
+                lines=8,
+                interactive=False,
+                show_copy_button=True,
+                elem_classes="styled-box"
+            )
+
+    # Connect buttons to functions
+    submit_btn.click(
+        fn=message_gpt,
+        inputs=[compliment_input, rudeness_slider, model_dropdown],
+        outputs=output_box
+    )
+    clear_btn.click(
+        fn=lambda: ("", 1, ""),
+        outputs=[compliment_input, rudeness_slider, output_box]
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
@@ -100,5 +176,7 @@ if __name__ == "__main__":
         server_name="0.0.0.0",
         server_port=port,
         auth=auth_list,
-        auth_message="<h2>Be Rude till Doomsday</h2><p>Please sign in to continue.</p>"
+        auth_message="<h2>Be Rude till Doomsday</h2><p>Please sign in to continue.</p>",
+        theme=custom_theme,
+        css=custom_css
     )
