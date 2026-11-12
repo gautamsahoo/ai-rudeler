@@ -2,9 +2,23 @@ import os
 from openai import OpenAI
 import gradio as gr
 
-# Verify the API key exists in the system environment
+# 1. Verify the OpenAI API key exists
 if not os.environ.get("OPENAI_API_KEY"):
     raise ValueError("OPENAI_API_KEY environment variable is missing.")
+
+# 2. Load and parse login credentials from APP_USERS
+raw_users = os.environ.get("APP_USERS")
+if not raw_users:
+    raise ValueError("APP_USERS environment variable is missing.")
+
+auth_list = []
+for pair in raw_users.split(","):
+    if ":" in pair:
+        username, password = pair.split(":", 1)
+        auth_list.append((username.strip(), password.strip()))
+
+if not auth_list:
+    raise ValueError("No valid username:password pairs found in APP_USERS.")
 
 # Automatically reads OPENAI_API_KEY from the system environment
 openai = OpenAI()
@@ -26,7 +40,7 @@ def message_gpt(compliment, rudeness):
         reasoning_effort="none",
         messages=messages
     )
-    return response.choices[0].message.content
+    return response.choices.message.content
 
 view = gr.Interface(
     fn=message_gpt,
@@ -43,12 +57,5 @@ if __name__ == "__main__":
     view.launch(
         server_name="0.0.0.0",
         server_port=port,
-        auth=[
-            ("kamal", "ramachandran"),
-            ("santhi", "nekkanti"),
-            ("lalith", "chalasani"),
-            ("paul", "eggars"),
-            ("paradip","pila"),
-            ("southeastern","mutual")
-        ]
+        auth=auth_list
     )
