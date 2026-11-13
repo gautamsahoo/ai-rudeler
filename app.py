@@ -73,42 +73,82 @@ def message_gpt(compliment, rudeness, model_choice):
 
     return response.choices[0].message.content
 
+
 # 4. Define custom theme and CSS styling
+
 custom_theme = gr.themes.Soft(
-    primary_hue="rose",
-    secondary_hue="slate",
-    radius_size="lg"
+    primary_hue="slate",
+    secondary_hue="gray",
+    neutral_hue="slate",
+    radius_size="md"
 )
 
 custom_css = """
+/* Main application container */
 .gradio-container {
     max-width: 850px !important;
     margin: auto !important;
 }
+
+/* Header banner */
 #header-banner {
     text-align: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #881337, #be123c);
-    color: white;
+    padding: 24px;
+    background: linear-gradient(135deg, #252a30, #475569);
+    color: #f8fafc;
     border-radius: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.25);
+    margin-bottom: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
 }
+
 #header-banner h1 {
-    color: white !important;
+    color: #ffffff !important;
     margin: 0;
     font-size: 2rem;
+    font-weight: 600;
 }
+
 #header-banner p {
-    color: #ffe4e6 !important;
-    margin: 6px 0 0 0;
+    color: #cbd5e1 !important;
+    margin: 8px 0 0 0;
+    font-size: 0.95rem;
 }
+
+/* Input and output boxes */
 .styled-box {
-    border: 2px solid #fda4af !important;
+    border: 1px solid #cbd5e1 !important;
     border-radius: 10px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Buttons */
+button.primary {
+    background: #475569 !important;
+    border-color: #475569 !important;
+    color: white !important;
+}
+
+button.primary:hover {
+    background: #334155 !important;
+    border-color: #334155 !important;
+}
+
+button.secondary {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+    border-color: #d1d5db !important;
+}
+
+button.secondary:hover {
+    background: #d1d5db !important;
+}
+
+/* Slider accent */
+input[type="range"] {
+    accent-color: #64748b;
 }
 """
+
 
 # 5. Build a cleaner layout using gr.Blocks
 with gr.Blocks(title="Be Rude till Doomsday") as view:
