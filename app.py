@@ -165,14 +165,14 @@ with gr.Blocks(title="Be Rude till Doomsday") as view:
         with gr.Column(scale=1):
             compliment_input = gr.Textbox(
                 label="Compliment for Gautam",
-                placeholder="Type something nice here...",
+                placeholder="Type something nice or ugly here...",
                 lines=3,
                 elem_classes="styled-box"
             )
             with gr.Row():
                 rudeness_slider = gr.Slider(
                     label="Rudeness Level",
-                    value=1,
+                    value=2,
                     minimum=1,
                     maximum=5,
                     step=1
