@@ -33,7 +33,7 @@ openai_client = OpenAI(api_key=openai_api_key)
 
 anthropic_client = OpenAI(
     api_key=anthropic_api_key,
-    base_url="hhttps://api.anthropic.com/v1/"
+    base_url="https://api.anthropic.com/v1/"
 )
 
 gemini_client = OpenAI(
