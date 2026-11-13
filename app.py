@@ -33,12 +33,12 @@ openai_client = OpenAI(api_key=openai_api_key)
 
 anthropic_client = OpenAI(
     api_key=anthropic_api_key,
-    base_url="https://anthropic.com"
+    base_url="hhttps://api.anthropic.com/v1/"
 )
 
 gemini_client = OpenAI(
     api_key=google_api_key,
-    base_url="https://googleapis.com"
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
 )
 
 system_message = (
@@ -165,14 +165,14 @@ with gr.Blocks(title="Be Rude till Doomsday") as view:
         with gr.Column(scale=1):
             compliment_input = gr.Textbox(
                 label="Compliment for Gautam",
-                placeholder="Type something nice or ugly here...",
+                placeholder="Type something nice here...",
                 lines=3,
                 elem_classes="styled-box"
             )
             with gr.Row():
                 rudeness_slider = gr.Slider(
                     label="Rudeness Level",
-                    value=2,
+                    value=1,
                     minimum=1,
                     maximum=5,
                     step=1
