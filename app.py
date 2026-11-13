@@ -155,7 +155,7 @@ with gr.Blocks(title="Be Rude till Doomsday") as view:
                 label="Gautam's Response",
                 lines=8,
                 interactive=False,
-                show_copy_button=True,
+                buttons=["copy"],
                 elem_classes="styled-box"
             )
 
