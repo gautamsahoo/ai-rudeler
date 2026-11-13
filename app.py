@@ -54,25 +54,34 @@ def message_gpt(compliment, rudeness, model_choice):
         {"role": "user", "content": prompt}
     ]
 
+    # Select the appropriate API client
     if model_choice.startswith("claude"):
-        response = anthropic_client.chat.completions.create(
-            model=model_choice,
-            messages=messages
-        )
+        client = anthropic_client
+        extra_params = {}
     elif model_choice.startswith("gemini"):
-        response = gemini_client.chat.completions.create(
-            model=model_choice,
-            messages=messages
-        )
+        client = gemini_client
+        extra_params = {}
     else:
-        response = openai_client.chat.completions.create(
-            model=model_choice,
-            reasoning_effort="none",
-            messages=messages
-        )
+        client = openai_client
+        extra_params = {"reasoning_effort": "none"}
 
-    return response.choices[0].message.content
+    # Request streaming response
+    response = client.chat.completions.create(
+        model=model_choice,
+        messages=messages,
+        stream=True,
+        **extra_params
+    )
 
+    # Yield response incrementally
+    generated_text = ""
+
+    for chunk in response:
+        content = chunk.choices[0].delta.content
+
+        if content:
+            generated_text += content
+            yield generated_text
 
 # 4. Define custom theme and CSS styling
 
